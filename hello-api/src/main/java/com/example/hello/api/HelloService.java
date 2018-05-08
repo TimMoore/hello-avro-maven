@@ -7,6 +7,7 @@ import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.broker.Topic;
 import com.lightbend.lagom.javadsl.api.broker.kafka.KafkaProperties;
+import com.typesafe.config.ConfigFactory;
 
 import static com.lightbend.lagom.javadsl.api.Service.*;
 
@@ -49,6 +50,12 @@ public interface HelloService extends Service {
                         // to that user), we configure a partition key strategy that extracts the
                         // name as the partition key.
                         .withProperty(KafkaProperties.partitionKeyStrategy(), HelloEvent::getName)
+                        .withMessageSerializer(
+                                new AvroMessageSerializer(
+                                        ConfigFactory.load().getString("schema-registry-url"),
+                                        false
+                                )
+                        )
         ).withAutoAcl(true);
     }
 }
